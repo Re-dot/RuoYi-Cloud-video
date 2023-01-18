@@ -1,31 +1,114 @@
 package com.ruoyi.video.service.impl;
 
-import com.ruoyi.system.api.domain.SysUser;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.nacos.api.NacosFactory;
+import com.alibaba.nacos.api.config.ConfigService;
+import com.alibaba.nacos.api.exception.NacosException;
+import com.alibaba.nacos.common.utils.StringUtils;
+import com.aliyun.oss.ClientException;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.OSSException;
+import com.aliyun.oss.model.PutObjectRequest;
+import com.aliyun.oss.model.PutObjectResult;
+import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.ruoyi.common.redis.service.RedisService;
+import com.ruoyi.video.config.getNacosValue;
 import com.ruoyi.video.mapper.TestMapper;
 import com.ruoyi.video.service.ITestServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
 public class TestServicelmpl implements ITestServiceImpl {
 
+    @Resource
+    private RedisService redisService;
+
+
+    @Resource
+    private getNacosValue getNacosValue;
 
     @Autowired
     private TestMapper testMapper;
 
 
-    private final  String accesskey = "LTAI5t7j9cVPN37sTLoa64ms";
 
 
-    private final String secretkey = "Ojrmvo00uCcIybCHJwYhYE0VmSDlF3";
 
 
-    private final String endpoint = "oss-cn-guangzhou.aliyuncs.com";
+    public String getConfig(String dataId, String group, long timeoutMs) throws NacosException
+    {
+        String content = "";
+        try {
+            String serverAddr = "127.0.0.1:8848";
+            Properties properties = new Properties();
+            properties.put("serverAddr", serverAddr);
+            ConfigService configService = NacosFactory.createConfigService(properties);
+            content = configService.getConfig(dataId, group, 5000);
+            content = content.trim();
+            content = content.replaceAll("\\s*|\r|\n|\t","");
+            content = saveRedis(content);
+            System.out.println(content);
+        } catch (NacosException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return content;
+    }
+
+
+
+    public String saveRedis(String str)
+    {
+        int time = 24;
+        Long longnum = Long.valueOf(time);
+        String data = str;
+       if(!redisService.hasKey("video"))
+       {
+           redisService.setCacheObject("video",str,longnum, TimeUnit.DAYS);
+       }else
+       {
+          String videoConfig =  redisService.getCacheObject("video");
+          if(!StringUtils.contains(videoConfig,str))
+          {
+              redisService.setCacheObject("video",str,longnum, TimeUnit.DAYS);
+          }
+          else
+          {
+              data = videoConfig;
+          }
+       }
+       return data;
+    }
+
+
+    public HashMap<String,Object> StringToMap(String str)
+    {
+        JSONObject jsonObject = new JSONObject();
+        HashMap<String, Object> Map = new HashMap<>();
+        if(StringUtils.isNotEmpty(str))
+        {
+            jsonObject  = JSONObject.parseObject(str);
+        }else {
+            new RuntimeException("获取配置为空");
+        }
+        //循环转换
+        for (HashMap.Entry<String, Object> entry : jsonObject.entrySet()) {
+            Map.put(entry.getKey(), entry.getValue());
+        }
+        return Map;
+    }
+
+
 
 
 /*
@@ -37,12 +120,15 @@ public class TestServicelmpl implements ITestServiceImpl {
         return AjaxResult.success("接口调用成功",list);
     }*/
 
-    /*public AjaxResult Save() {
-        String bucketName = "ruoyi-public";
-        String objectName = "exampledir/exampleobject.txt";
+    public AjaxResult Save() {
+        String bucketName = getNacosValue.getValue("bucketName");
+        String objectName = getNacosValue.getValue("objectName")+"/exampleobject.txt";
+        String accesskey = getNacosValue.getValue("accesskey");
+        String secretkey = getNacosValue.getValue("secretkey");
+        String endpoint = getNacosValue.getValue("endpoint");
         String FilePath = "C:\\Users\\Retasu\\Desktop\\MG1WP{MGG9PNCS9XICR`W34.png";
         File f = new File(FilePath);
-        objectName = f.getName();
+        //objectName = f.getName();
         OSS ossClient = new OSSClientBuilder().build(endpoint, accesskey, secretkey);
         try {
             InputStream inputStream = new FileInputStream(FilePath);
@@ -73,7 +159,7 @@ public class TestServicelmpl implements ITestServiceImpl {
             return AjaxResult.success("接口调用成功");
         }
     }
-*/
+
     @Override
     public List<HashMap> UserAll() {
         return testMapper.UserAll();

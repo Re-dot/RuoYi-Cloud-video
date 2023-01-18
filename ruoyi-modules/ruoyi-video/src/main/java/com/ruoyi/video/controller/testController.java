@@ -1,6 +1,9 @@
 package com.ruoyi.video.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.nacos.api.exception.NacosException;
+import com.alibaba.nacos.common.utils.StringUtils;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.ruoyi.common.core.web.controller.BaseController;
@@ -40,12 +43,36 @@ public class testController extends BaseController {
         return AjaxResult.success("接口调用成功",list);
     }
 
+    @PostMapping("/nacosTest")
+    public AjaxResult nacosTest()
+    {
+        String str = "";
+        HashMap<String,Object> map =new HashMap<>();
+        try
+        {
+            String dataId = "ruoyi-video.properties";
+            String group = "DEFAULT_GROUP";
+            str = testServicelmpl.getConfig(dataId,group,5000);
+            map = testServicelmpl.StringToMap(str);
+        }catch (NacosException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-   /* @PostMapping("/save")
+        return AjaxResult.success("接口调用成功",map);
+    }
+
+
+
+
+    @PostMapping("/save")
     public AjaxResult Save()
     {
         return testServicelmpl.Save();
-    }*/
+    }
+
+
+
 
 
 
