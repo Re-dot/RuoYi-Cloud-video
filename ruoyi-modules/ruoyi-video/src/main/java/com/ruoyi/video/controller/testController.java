@@ -76,7 +76,7 @@ public class testController extends BaseController {
 
 
     @PostMapping("/bigSave")
-    public AjaxResult bigSave(MultipartFile file)
+    public AjaxResult bigSave(@RequestParam(value = "file") MultipartFile file)
     {
        testServicelmpl.bigSave(file);
        return AjaxResult.success();

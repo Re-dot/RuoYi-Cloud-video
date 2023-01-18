@@ -84,6 +84,11 @@ public class VideoUtil {
         return null;
     }
 
+
+    /***
+     *  MultipartFile类型转File类型
+     *
+     * **/
     public  File multipartFileToFile( MultipartFile file) throws Exception {
         File toFile = null;
         if (file.equals("") || file.getSize() <= 0) {

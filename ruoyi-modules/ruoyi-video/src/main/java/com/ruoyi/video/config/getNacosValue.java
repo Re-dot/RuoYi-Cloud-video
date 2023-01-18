@@ -59,6 +59,10 @@ public class getNacosValue {
         return content;
     }
 
+    /**
+     *   获取nacos配置文件信息
+     *   json类型通过key获取到对应的value
+     * **/
     public String getValue(String key)
     {
         String value = "";
@@ -110,6 +114,11 @@ public class getNacosValue {
         //return data;
     }
 
+    /***
+     *
+     *   String 转 HashMap
+     *
+     * **/
     public HashMap<String,Object> StringToMap(String str)
     {
         JSONObject jsonObject = new JSONObject();
