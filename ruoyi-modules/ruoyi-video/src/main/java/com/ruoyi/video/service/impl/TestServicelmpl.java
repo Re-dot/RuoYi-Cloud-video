@@ -13,15 +13,18 @@ import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.oss.model.PutObjectResult;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.redis.service.RedisService;
+import com.ruoyi.video.config.VideoUtil;
 import com.ruoyi.video.config.getNacosValue;
 import com.ruoyi.video.mapper.TestMapper;
 import com.ruoyi.video.service.ITestServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +36,8 @@ public class TestServicelmpl implements ITestServiceImpl {
     @Resource
     private RedisService redisService;
 
+    @Resource
+    private VideoUtil videoUtil;
 
     @Resource
     private getNacosValue getNacosValue;
@@ -120,18 +125,25 @@ public class TestServicelmpl implements ITestServiceImpl {
         return AjaxResult.success("接口调用成功",list);
     }*/
 
-    public AjaxResult Save() {
-        String bucketName = getNacosValue.getValue("bucketName");
-        String objectName = getNacosValue.getValue("objectName")+"/exampleobject.txt";
+    /**
+     *  小文件上传
+     *
+     * */
+    public AjaxResult Save(MultipartFile file)  {
+        String bucketName = getNacosValue.getValue("bucketName-file");
+        String fileName = file.getOriginalFilename();
+        String objectName = getNacosValue.getValue("objectName")+"/"+fileName;
         String accesskey = getNacosValue.getValue("accesskey");
         String secretkey = getNacosValue.getValue("secretkey");
-        String endpoint = getNacosValue.getValue("endpoint");
-        String FilePath = "C:\\Users\\Retasu\\Desktop\\MG1WP{MGG9PNCS9XICR`W34.png";
-        File f = new File(FilePath);
+        String endpoint = getNacosValue.getValue("endpoint-guangzhou");
+        //String FilePath = "C:\\Users\\Retasu\\Desktop\\MG1WP{MGG9PNCS9XICR`W34.png";
+        //File f = videoUtil.multipartFileToFile(file.getInputStream(),file);
         //objectName = f.getName();
         OSS ossClient = new OSSClientBuilder().build(endpoint, accesskey, secretkey);
         try {
-            InputStream inputStream = new FileInputStream(FilePath);
+            File f = videoUtil.multipartFileToFile(file);
+
+            InputStream inputStream = new FileInputStream(f);
             // 创建PutObjectRequest对象。
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, inputStream);
             // 设置该属性可以返回response。如果不设置，则返回的response为空。
@@ -159,6 +171,19 @@ public class TestServicelmpl implements ITestServiceImpl {
             return AjaxResult.success("接口调用成功");
         }
     }
+
+    public void bigSave(MultipartFile multipartFile)
+    {
+        if(videoUtil.checkFileSize(multipartFile.getSize(),100,"M"))
+        {
+           Save(multipartFile);
+        }else
+        {
+
+        }
+    }
+
+
 
     @Override
     public List<HashMap> UserAll() {

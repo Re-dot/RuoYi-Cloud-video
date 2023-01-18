@@ -12,12 +12,15 @@ import com.ruoyi.system.api.domain.SysUser;
 import com.ruoyi.video.config.OssConfigData;
 
 import com.ruoyi.video.service.impl.TestServicelmpl;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -66,9 +69,17 @@ public class testController extends BaseController {
 
 
     @PostMapping("/save")
-    public AjaxResult Save()
+    public AjaxResult Save(@RequestParam(value = "file") MultipartFile file)
     {
-        return testServicelmpl.Save();
+        return testServicelmpl.Save(file);
+    }
+
+
+    @PostMapping("/bigSave")
+    public AjaxResult bigSave(MultipartFile file)
+    {
+       testServicelmpl.bigSave(file);
+       return AjaxResult.success();
     }
 
 
