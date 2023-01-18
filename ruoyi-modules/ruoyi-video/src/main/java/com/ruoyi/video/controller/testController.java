@@ -5,20 +5,26 @@ import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.ruoyi.system.api.domain.SysUser;
 import com.ruoyi.video.config.OssConfigData;
-import com.ruoyi.video.service.TestServicelmpl;
+
+import com.ruoyi.video.service.impl.TestServicelmpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequestMapping("/aliyun")
 @Controller
+
 public class testController extends BaseController {
 
 
@@ -30,15 +36,16 @@ public class testController extends BaseController {
     @PostMapping("/test")
     public AjaxResult Test()
     {
-        return testServicelmpl.Test();
+        List<HashMap> list =  testServicelmpl.UserAll();
+        return AjaxResult.success("接口调用成功",list);
     }
 
 
-    @PostMapping("/save")
+   /* @PostMapping("/save")
     public AjaxResult Save()
     {
         return testServicelmpl.Save();
-    }
+    }*/
 
 
 
