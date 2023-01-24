@@ -37,7 +37,7 @@ public class getNacosValue {
 
    /**
     *  获取nacos配置文件
-    *  并处理字符串保存至redis缓存
+    *
     * */
     public String getConfig(String dataId, String group, long timeoutMs) throws NacosException
     {
@@ -92,6 +92,8 @@ public class getNacosValue {
      *  保存到redis
      *  判断是否有重复
      *  判断是否有新添加参数
+     *  存入时间设置为24小时
+     *
      * **/
     public void saveRedis(String str)
     {

@@ -27,3 +27,47 @@ spring:
         # 共享配置
         shared-configs:
           - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+
+    alibaba:
+      seata:
+        tx-service-group : default_tx_group
+
+# seata配置
+seata:
+  # 默认关闭，如需启用spring.datasource.dynami.seata需要同时开启
+  enabled: true
+  # Seata 应用编号，默认为 ${spring.application.name}
+  application-id: seata-server
+  # Seata 事务组编号，用于 TC 集群名
+  tx-service-group: default_tx_group
+  # 关闭自动代理
+  enable-auto-data-source-proxy: false
+  # 服务配置项
+  service:
+    # 虚拟组和分组的映射
+    vgroup-mapping:
+      default_tx_group: default
+    grouplist:
+      default: 127.0.0.1:8091
+  config:
+    type: nacos
+    nacos:
+      #      serverAddr: 127.0.0.1:8848
+      group: SEATA_GROUP
+      namespace:
+      server-addr: 127.0.0.1:8848
+      username: nacos
+      password: nacos
+  registry:
+    type: nacos
+    nacos:
+      application: seata-server
+      server-addr: 127.0.0.1:8848
+      namespace:
+      username: nacos
+      password: nacos
+      cluster: default
+
+
+
+

@@ -4,30 +4,56 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.exception.NacosException;
+
+import com.alibaba.nacos.common.utils.MapUtil;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
+
 import com.aliyun.oss.model.*;
+import com.ruoyi.common.core.utils.DateUtils;
+
+import com.ruoyi.common.core.utils.SpringUtils;
 import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.ruoyi.common.log.annotation.Log;
 import com.ruoyi.common.redis.service.RedisService;
 import com.ruoyi.video.config.VideoUtil;
 import com.ruoyi.video.config.getNacosValue;
 import com.ruoyi.video.mapper.TestMapper;
+import com.ruoyi.video.mapper.TriggerLogMapper;
 import com.ruoyi.video.service.ITestServiceImpl;
+import com.ruoyi.video.service.ITriggerLogImpl;
+import com.ruoyi.video.videoUtil.VideoStringUtil;
+import nonapi.io.github.classgraph.json.JSONUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.ibatis.annotations.Param;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.IdGenerator;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.lang.reflect.Method;
+import java.sql.Date;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import io.seata.spring.annotation.GlobalTransactional;
 
 @Service
-public class TestServicelmpl implements ITestServiceImpl {
+public class TestServicelmpl  {
 
     @Resource
     private RedisService redisService;
@@ -41,9 +67,134 @@ public class TestServicelmpl implements ITestServiceImpl {
     @Autowired
     private TestMapper testMapper;
 
+    @Autowired
+    private ITriggerLogImpl iTriggerLog;
+
+    @Autowired
+    TriggerLogMapper triggerLogMapper;
+
+    @Resource
+    private VideoStringUtil videoStringUtil;
+
+    @GlobalTransactional(rollbackFor = RuntimeException.class)
+    public AjaxResult seataSave(JSONObject obj)
+    {
+        AjaxResult ajaxResult = new AjaxResult();
+        ajaxResult = AjaxResult.success("接口调用成功");
+            int i=0;
+            HashMap<String,Object> file = new HashMap<>();
+            file.put("id_",videoStringUtil.getRandomString());
+            file.put("file_name","123.txt");
+            file.put("file_type","txt");
+            file.put("file_size","2");
+            file.put("start_time",DateUtils.getDateNow());
+            obj.put("start_time",DateUtils.getDateNow());
+            HashMap<String,Object> map = getNacosValue.StringToMap(obj.toString());
+            triggerLogMapper.save("interface_log",map);
+            //triggerLogMapper.deleteById("5121843842349");
+            if(i==0)
+            {
+                throw  new RuntimeException("测试报错");
+            }
+            triggerLogMapper.save("sys_file",file);
+
+
+        return ajaxResult;
+    }
 
 
 
+    public AjaxResult logSave(JSONObject json, ProceedingJoinPoint joinPoint)
+    {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = attributes.getRequest();
+        String startTime = DateUtils.getTime();
+        //请求controller名称，使用@LogApi注解
+        String desc = getLogMethod(joinPoint);
+        //方法路径
+        String methodName = joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName();
+        //IP地址
+        String iP = getIp(request);
+        //请求入参
+        String requestParam = "";
+        long begin = System.currentTimeMillis();
+        Object result=null;
+        String msg="succcess";
+        try {
+            Object[] args = joinPoint.getArgs();
+            if(args.length>0){
+                requestParam= JSONObject.toJSONString(args[0]);
+            }
+            result = joinPoint.proceed();
+        }catch (Exception e){
+            msg="fail";
+            result=e.getMessage();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+        SpringUtils.getBean(this.getClass()).saveLog(startTime,desc,String.valueOf(request.getRequestURL()), methodName, iP, requestParam, begin, result, msg);
+
+        return AjaxResult.success("接口调用成功");
+    }
+
+
+    @Async(value = "asyncExecutor")
+    public void saveLog(String startTime,String desc,String url, String methodName, String iP, String requestParam, long begin, Object result, String msg) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("id_", RandomStringUtils.randomAlphanumeric(25));
+        map.put("start_time",startTime);
+        map.put("end_time",DateUtils.getDate());
+        map.put("params",requestParam);
+        map.put("result",JSONObject.toJSONString(result)+"耗时->"+(System.currentTimeMillis() - begin)+"ms");
+        map.put("message",msg);
+        map.put("ip_address",iP);
+        map.put("method_name",methodName);
+        map.put("url",url);
+        map.put("log_desc",desc);
+        map.put("del_flag_",0);
+        iTriggerLog.save("fm_fee_interface_log",map);
+
+    }
+
+    /**
+     * 获取Controller的方法名
+     */
+
+    private String getLogMethod(ProceedingJoinPoint joinPoint) {
+        Method[] methods = joinPoint.getSignature().getDeclaringType().getMethods();
+        for (Method method : methods) {
+            if (StringUtils.equalsIgnoreCase(method.getName(), joinPoint.getSignature().getName())) {
+                Log annotation = method.getAnnotation(Log.class);
+                if (ObjectUtils.isNotEmpty(annotation)) {
+                    return annotation.title();
+                }
+            }
+        }
+        return "该Controller的方法使用未使用注解@LogApi，请使用该注解说明方法作用";
+    }
+
+    /**
+     * 获取目标主机的ip
+     *
+     * @param request
+     * @return
+     */
+    private String getIp(HttpServletRequest request) {
+        List<String> ipHeadList = Stream.of("X-Forwarded-For", "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "X-Real-IP").collect(Collectors.toList());
+        for (String ipHead : ipHeadList) {
+            if (checkIP(request.getHeader(ipHead))) {
+                return request.getHeader(ipHead).split(",")[0];
+            }
+        }
+        return "0:0:0:0:0:0:0:1".equals(request.getRemoteAddr()) ? "127.0.0.1" : request.getRemoteAddr();
+    }
+
+    /**
+     * 检查ip存在
+     */
+    private boolean checkIP(String ip) {
+        return !(null == ip || 0 == ip.length() || "unknown".equalsIgnoreCase(ip));
+    }
 
 
     public String getConfig(String dataId, String group, long timeoutMs) throws NacosException
@@ -334,8 +485,5 @@ public class TestServicelmpl implements ITestServiceImpl {
 
 
 
-    @Override
-    public List<HashMap> UserAll() {
-        return testMapper.UserAll();
-    }
+
 }

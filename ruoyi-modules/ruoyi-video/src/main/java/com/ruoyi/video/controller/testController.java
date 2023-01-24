@@ -12,14 +12,13 @@ import com.ruoyi.system.api.domain.SysUser;
 import com.ruoyi.video.config.OssConfigData;
 
 import com.ruoyi.video.service.impl.TestServicelmpl;
+import io.swagger.annotations.ApiParam;
 import org.apache.ibatis.annotations.Param;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -39,12 +38,22 @@ public class testController extends BaseController {
     private TestServicelmpl testServicelmpl;
 
 
-    @PostMapping("/test")
+
+
+    @PostMapping("/logSave")
+    public AjaxResult logSave(@ApiParam @RequestBody JSONObject json)
+    {
+       return testServicelmpl.seataSave(json);
+
+    }
+
+
+    /*@PostMapping("/test")
     public AjaxResult Test()
     {
         List<HashMap> list =  testServicelmpl.UserAll();
         return AjaxResult.success("接口调用成功",list);
-    }
+    }*/
 
     @PostMapping("/nacosTest")
     public AjaxResult nacosTest()

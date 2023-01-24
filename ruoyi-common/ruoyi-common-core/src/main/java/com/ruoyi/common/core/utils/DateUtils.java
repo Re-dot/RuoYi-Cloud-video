@@ -53,6 +53,16 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
         return dateTimeNow(YYYY_MM_DD);
     }
 
+    /**
+     *
+     *  获取当前时间 日期加当时间
+     *
+     * */
+    public static String getDateNow()
+    {
+        return dateTimeNow(YYYY_MM_DD_HH_MM_SS);
+    }
+
     public static final String getTime()
     {
         return dateTimeNow(YYYY_MM_DD_HH_MM_SS);
