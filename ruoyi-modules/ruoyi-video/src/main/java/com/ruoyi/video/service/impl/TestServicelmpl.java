@@ -76,18 +76,24 @@ public class TestServicelmpl  {
     @Resource
     private VideoStringUtil videoStringUtil;
 
-    @GlobalTransactional(rollbackFor = RuntimeException.class)
+    /**
+     *
+     *   seata报错数据回滚测试
+     *
+     * **/
+    @GlobalTransactional(rollbackFor = Exception.class)
     public AjaxResult seataSave(JSONObject obj)
     {
         AjaxResult ajaxResult = new AjaxResult();
         ajaxResult = AjaxResult.success("接口调用成功");
-            int i=0;
+            int i=1;
             HashMap<String,Object> file = new HashMap<>();
             file.put("id_",videoStringUtil.getRandomString());
             file.put("file_name","123.txt");
             file.put("file_type","txt");
             file.put("file_size","2");
             file.put("start_time",DateUtils.getDateNow());
+            obj.put("id_",videoStringUtil.getRandomString());
             obj.put("start_time",DateUtils.getDateNow());
             HashMap<String,Object> map = getNacosValue.StringToMap(obj.toString());
             triggerLogMapper.save("interface_log",map);
@@ -107,10 +113,13 @@ public class TestServicelmpl  {
     public AjaxResult logSave(JSONObject json, ProceedingJoinPoint joinPoint)
     {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+        String name = Thread.currentThread().getStackTrace()[1].getMethodName();
         HttpServletRequest request = attributes.getRequest();
         String startTime = DateUtils.getTime();
         //请求controller名称，使用@LogApi注解
-        String desc = getLogMethod(joinPoint);
+        String desc = "";
+                //getLogMethod(joinPoint);
         //方法路径
         String methodName = joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName();
         //IP地址
@@ -152,7 +161,7 @@ public class TestServicelmpl  {
         map.put("url",url);
         map.put("log_desc",desc);
         map.put("del_flag_",0);
-        iTriggerLog.save("fm_fee_interface_log",map);
+        iTriggerLog.save("interface_log",map);
 
     }
 
