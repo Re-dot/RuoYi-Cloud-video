@@ -3,6 +3,7 @@ package com.ruoyi.video.videoUtil;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.ruoyi.common.core.utils.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.security.MessageDigest;
@@ -61,6 +62,19 @@ public class VideoStringUtil {
         }
         System.out.println(data);
         return data;
+    }
+
+    public String getJSONObjectVal(String key,JSONObject obj)
+    {
+        String result = "";
+        if(obj.containsKey(key))
+        {
+            if(!StringUtils.isEmpty(obj.getString(key)))
+            {
+                result = obj.getString(key);
+            }
+        }
+        return result;
     }
 
 
