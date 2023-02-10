@@ -2,14 +2,22 @@ package com.ruoyi.video.controller;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.ruoyi.video.domain.MQTransactionLog;
+import com.ruoyi.video.domain.UserCharge;
+import com.ruoyi.video.mapper.CreditMapper;
+import com.ruoyi.video.mapper.MQTransactionLogMapper;
+import com.ruoyi.video.mapper.UserMapper;
 import com.ruoyi.video.service.impl.MQConsumerService;
 import com.ruoyi.video.service.impl.MQProducerService;
 
+import com.ruoyi.video.service.impl.MQTXProducerService;
+import io.swagger.annotations.ApiParam;
+
 import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.client.producer.TransactionSendResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -20,6 +28,18 @@ public class RocketMQController {
 
     @Autowired
     private MQProducerService mqProducerService;
+
+    @Autowired
+    private CreditMapper creditMapper;
+
+    @Autowired
+    private MQTransactionLogMapper mqTransactionLogMapper;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private MQTXProducerService mqtxProducerService;
 
 
     @Resource
@@ -45,6 +65,48 @@ public class RocketMQController {
         SendResult sendResult = mqProducerService.sendMsg("同步信息");
         return sendResult;
     }
+
+
+    @PostMapping("/addNumber")
+    public AjaxResult addNumber(@ApiParam  @RequestBody JSONObject jsonObject)
+    {
+        int i = creditMapper.addNumber(jsonObject.getString("userId"),jsonObject.getString("chargeAmount"));
+        return AjaxResult.success("接口调用成功",i);
+
+    }
+
+    @PostMapping("/selectByPrimaryKey")
+    public AjaxResult selectByPrimaryKey(@ApiParam @RequestBody JSONObject jsonObject)
+    {
+        MQTransactionLog mqTransactionLog = mqTransactionLogMapper.selectByPrimaryKey(jsonObject.getString("transaction_id"));
+        return AjaxResult.success("接口调用成功",mqTransactionLog);
+    }
+
+    @PostMapping("/insertSelective")
+    public AjaxResult insertSelective(@ApiParam @RequestBody JSONObject jsonObject){
+        MQTransactionLog mqTransactionLog = JSONObject.toJavaObject(jsonObject,MQTransactionLog.class);
+        mqTransactionLogMapper.insertSelective(mqTransactionLog);
+        return AjaxResult.success("接口调用成功");
+
+    }
+
+    @PostMapping("/addBalance")
+    public AjaxResult addBalance(@ApiParam @RequestBody JSONObject jsonObject)
+    {
+        int i = userMapper.addBalance(jsonObject.getString("userId"), jsonObject.getString("chargeAmount"));
+        return AjaxResult.success("接口调用成功",i);
+    }
+
+
+    @PostMapping("/charge")
+    public AjaxResult charge(@ApiParam @RequestBody UserCharge userCharge) {
+        TransactionSendResult sendResult = mqtxProducerService.sendHalfMsg(userCharge);
+        return AjaxResult.success("接口调用成功",sendResult);
+    }
+
+
+
+
 
 
 }

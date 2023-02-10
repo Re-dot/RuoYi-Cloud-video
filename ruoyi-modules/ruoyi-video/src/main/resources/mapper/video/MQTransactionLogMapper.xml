@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.video.mapper.MQTransactionLogMapper">
+
+    <resultMap id="baseResultMap" type="com.ruoyi.video.domain.MQTransactionLog">
+        <id  property="transaction_id" column="transaction_id"></id>
+        <result property="log" column="log"></result>
+    </resultMap>
+    <insert id="insertSelective" parameterType="java.lang.String">
+         insert  into t_mq_transaction_log (transaction_id,log,subtime)value (#{transaction_id},#{log},#{subtime})
+    </insert>
+
+    <insert id="save">
+        INSERT INTO ${tableName}
+        <foreach collection="inventoryMap.keys" item="key" open="(" close=")" separator=",">
+            ${key}
+        </foreach>
+        VALUES
+        <foreach collection="inventoryMap.keys" item="key" open="(" close=")" separator=",">
+            #{inventoryMap[${key}]}
+        </foreach>
+    </insert>
+    
+    
+    <select id="selectByPrimaryKey" resultMap="baseResultMap"  parameterType="String" >
+        select transaction_id,log from t_mq_transaction_log where transaction_id = #{transactionId}
+    </select>
+</mapper>
