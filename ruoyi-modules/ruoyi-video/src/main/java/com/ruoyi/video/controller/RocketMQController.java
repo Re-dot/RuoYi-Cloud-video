@@ -8,10 +8,10 @@ import com.ruoyi.video.domain.UserCharge;
 import com.ruoyi.video.mapper.CreditMapper;
 import com.ruoyi.video.mapper.MQTransactionLogMapper;
 import com.ruoyi.video.mapper.UserMapper;
-import com.ruoyi.video.service.impl.MQConsumerService;
-import com.ruoyi.video.service.impl.MQProducerService;
+import com.ruoyi.video.rocket.MQConsumerService;
+import com.ruoyi.video.rocket.MQProducerService;
 
-import com.ruoyi.video.service.impl.MQTXProducerService;
+import com.ruoyi.video.rocket.MQTXProducerService;
 import io.swagger.annotations.ApiParam;
 
 import org.apache.rocketmq.client.producer.SendResult;

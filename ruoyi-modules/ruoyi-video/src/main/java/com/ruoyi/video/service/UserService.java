@@ -33,7 +33,7 @@ public class UserService {
         MQTransactionLog transactionLog = new MQTransactionLog();
         transactionLog.setTransaction_id(transactionId);
         transactionLog.setLog(JSONObject.toJSONString(userCharge));
-        transactionLog.setSubtime(DateUtils.dateTime());
+        transactionLog.setSubtime(DateUtils.getTime());
         mqTransactionLogMapper.insertSelective(transactionLog);
     }
 

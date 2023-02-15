@@ -1,4 +1,4 @@
-package com.ruoyi.video.service.impl;
+package com.ruoyi.video.rocket;
 
 import com.ruoyi.video.domain.MQTransactionLog;
 import com.ruoyi.video.domain.UserCharge;
@@ -37,7 +37,8 @@ public class MQTXLocalService implements RocketMQLocalTransactionListener {
         MessageHeaders messageHeaders = message.getHeaders();
         String transactionId = (String) messageHeaders.get(RocketMQHeaders.TRANSACTION_ID);
         log.info("【执行本地事务】消息体参数：transactionId={}", transactionId);
-
+        //RocketMQLocalTransactionState state =  checkLocalTransaction(message);
+        //log.info("回查本地事务结果:"+state);
         // 执行带有事务注解的本地方法：增加用户余额+保存mq日志
         try {
             UserCharge userCharge = (UserCharge) obj;

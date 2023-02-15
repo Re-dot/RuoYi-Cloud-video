@@ -1,4 +1,4 @@
-package com.ruoyi.video.service.impl;
+package com.ruoyi.video.rocket;
 
 import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.video.annotation.LogApi;
