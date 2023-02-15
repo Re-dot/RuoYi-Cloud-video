@@ -10,6 +10,7 @@ import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.system.api.domain.SysUser;
 import com.ruoyi.video.annotation.LogApi;
+import com.ruoyi.video.common.SysPropertiesUtil;
 import com.ruoyi.video.config.OssConfigData;
 
 import com.ruoyi.video.service.impl.TestServicelmpl;
@@ -56,6 +57,13 @@ public class testController extends BaseController {
         AjaxResult ajaxResult = AjaxResult.success("接口调用成功");
         testServicelmpl.logSave(json,proceedingJoinPoint);
         return ajaxResult;
+    }
+
+    @PostMapping("/getNacosVal")
+    public AjaxResult getNacosVal(@ApiParam @RequestBody JSONObject jsonObject)
+    {
+        String str = SysPropertiesUtil.getString(jsonObject.getString("value"));
+        return AjaxResult.success("接口调用成功",str);
     }
 
 
