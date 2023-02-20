@@ -2,6 +2,7 @@ package com.ruoyi.video.controller;
 
 
 import com.alibaba.fastjson.JSONObject;
+
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.aliyun.oss.OSSClient;
@@ -13,6 +14,7 @@ import com.ruoyi.video.annotation.LogApi;
 import com.ruoyi.video.common.SysPropertiesUtil;
 import com.ruoyi.video.config.OssConfigData;
 
+import com.ruoyi.video.feign.SysUserClient;
 import com.ruoyi.video.service.impl.TestServicelmpl;
 import io.swagger.annotations.ApiParam;
 import org.apache.ibatis.annotations.Param;
@@ -40,7 +42,8 @@ public class testController extends BaseController {
     @Resource
     private TestServicelmpl testServicelmpl;
 
-
+    @Autowired
+    private SysUserClient sysUserClient;
 
 
     @PostMapping("/logSave")
@@ -64,6 +67,22 @@ public class testController extends BaseController {
     {
         String str = SysPropertiesUtil.getString(jsonObject.getString("value"));
         return AjaxResult.success("接口调用成功",str);
+    }
+
+    @PostMapping("/UserString")
+    public AjaxResult UserString()
+    {
+        String result = sysUserClient.TestString();
+        return AjaxResult.success("接口调用成功",result);
+    }
+
+    @PostMapping("/GetString")
+    public com.alibaba.fastjson2.JSONObject  GetString()
+    {
+        String str = "接口调用成功";
+        com.alibaba.fastjson2.JSONObject jsonObject = new com.alibaba.fastjson2.JSONObject();
+        jsonObject.put("value",str);
+        return jsonObject;
     }
 
 
