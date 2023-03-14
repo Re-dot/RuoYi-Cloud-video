@@ -5,6 +5,7 @@ import com.alibaba.nacos.api.annotation.NacosInjected;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.EnvironmentAware;
@@ -42,7 +43,12 @@ public class SysConfig implements EnvironmentAware {
         return this.properties.getProperty("props." + key);
     }
 
+    @SneakyThrows
     public void setEnvironment(Environment environment) {
+        String serverAddr = "127.0.0.1:8848";
+        //Properties properties = new Properties();
+        properties.put("serverAddr", serverAddr);
+        ConfigService configService = NacosFactory.createConfigService(properties);
         try {
             configService.addListener("nacos-config.properties", "DEFAULT_GROUP", new Listener() {
                 public Executor getExecutor() {
