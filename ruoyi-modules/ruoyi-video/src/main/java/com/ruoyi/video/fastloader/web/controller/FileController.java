@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.ruoyi.video.service.impl.FileToOssServiceImpl;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,9 @@ public class FileController {
     
     @Resource
     private ChunkService chunkService;
+
+    @Resource
+    private FileToOssServiceImpl fileToOssService;
 
     private final Logger logger = LoggerFactory.getLogger(FileController.class);
 
@@ -160,6 +164,7 @@ public class FileController {
         //文件合并成功后，保存记录至数据库
         if("200".equals(fileSuccess)) {
         	if(fileInfoService.addFileInfo(fileInfo) > 0) rlt = "SUCCESS";
+            fileToOssService.OssUpLoad(fileInfo);
         }
 
         //如果已经存在，则判断是否同一个项目，同一个项目的不用新增记录，否则新增

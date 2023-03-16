@@ -1,5 +1,7 @@
 package com.ruoyi.video.fastloader.util;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -7,16 +9,22 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
+import lombok.experimental.UtilityClass;
+import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ruoyi.video.fastloader.web.model.TChunkInfo;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 文件工具类
  * @author JaredJia
  *
  */
+@Service
 public class FileInfoUtils {
 	
 	private final static Logger logger = LoggerFactory.getLogger(FileInfoUtils.class);
@@ -45,6 +53,9 @@ public class FileInfoUtils {
      *
      * @param targetFile
      * @param folder
+     * file:文件路径
+     * folder:路径
+     * filename:文件名称(含格式)
      */
     public static String merge(String file, String folder, String filename){
     	//默认合并成功
@@ -86,6 +97,30 @@ public class FileInfoUtils {
         }
         
         return rlt;
+    }
+
+
+    /**
+     * @description:  根据文件路径，获取MultipartFile对象
+     * @author: nisan
+     * @date: 2022/1/18 13:08
+     * @param path
+     * @return org.springframework.web.multipart.MultipartFile
+     */
+    public static MultipartFile createMfileByPath(String path) {
+        MultipartFile mFile = null;
+        try {
+            File file = new File(path);
+            FileInputStream fileInputStream = new FileInputStream(file);
+
+            String fileName = file.getName();
+            fileName = fileName.substring((fileName.lastIndexOf("/") + 1));
+            mFile =  new MockMultipartFile(fileName, fileName, ContentType.APPLICATION_OCTET_STREAM.toString(), fileInputStream);
+        } catch (Exception e) {
+            logger.error("封装文件出现错误：{}", e);
+            //e.printStackTrace();
+        }
+        return mFile;
     }
     
     /**
