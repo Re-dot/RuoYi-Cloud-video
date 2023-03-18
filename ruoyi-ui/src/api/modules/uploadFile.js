@@ -32,3 +32,11 @@ export const downloadFile = query => {
   option.url = '/video/uploader/download'
   return requestApi(option)
 };
+
+export const getFileUrl = data => {
+  option.isJson = true
+  option.data = data
+  option.method = 'post'
+  option.url = '/video/uploader/getFileUrl'
+  return requestApi(option)
+};
