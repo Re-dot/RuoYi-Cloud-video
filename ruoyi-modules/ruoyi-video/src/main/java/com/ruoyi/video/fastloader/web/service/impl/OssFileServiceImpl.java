@@ -31,4 +31,9 @@ public class OssFileServiceImpl implements OssFileService {
     public void updateByPrimaryKeySelective(OssFile ossFile) {
        ossFileMapper.updateByPrimaryKeySelective(ossFile);
     }
+
+    @Override
+    public String getFileUrl(String id) {
+        return ossFileMapper.getFileUrl(id);
+    }
 }

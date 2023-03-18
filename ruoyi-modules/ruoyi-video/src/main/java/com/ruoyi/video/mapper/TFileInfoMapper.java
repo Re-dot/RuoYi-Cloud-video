@@ -24,6 +24,8 @@ public interface TFileInfoMapper {
 
 	List<TFileInfo> selectFileByParams( TFileInfo fileInfo);
 	
-	List<TFileInfo> selectFileList(@Param("fileInfo") TFileInfo fileInfo);
+	List<TFileInfo> selectFileList( TFileInfo fileInfo);
+
+	List<TFileInfo> selectAll();
 
 }

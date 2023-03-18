@@ -40,6 +40,11 @@ public class FileInfoServiceImpl implements FileInfoService {
 	}
 
 	@Override
+	public List<TFileInfo> selectAll() {
+		return tFileInfoMapper.selectAll();
+	}
+
+	@Override
 	public int deleteFile(TFileInfo tFileInfo) {
 		TFileInfo t = new TFileInfo();
 		t.setId(tFileInfo.getId());

@@ -12,4 +12,6 @@ public interface OssFileMapper {
     void insertSelective(OssFile ossFile);
 
     void updateByPrimaryKeySelective(OssFile ossFile);
+
+    String getFileUrl(String id);
 }

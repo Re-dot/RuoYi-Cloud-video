@@ -17,7 +17,8 @@ public interface FileInfoService {
      * @return List
      */
     List<TFileInfo> selectFileList(TFileInfo file);
-                    
+
+    List<TFileInfo> selectAll();
     
     /**
      * 删除
@@ -28,4 +29,6 @@ public interface FileInfoService {
 
 
     TFileInfo selectByPrimaryKey(String id);
+
+
 }

@@ -15,7 +15,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.common.core.web.domain.AjaxResult;
+import com.ruoyi.video.fastloader.web.service.OssFileService;
 import com.ruoyi.video.service.impl.FileToOssServiceImpl;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
@@ -59,6 +61,9 @@ public class FileController {
 
     @Resource
     private FileToOssServiceImpl fileToOssService;
+
+    @Resource
+    private OssFileService ossFileService;
 
     private final Logger logger = LoggerFactory.getLogger(FileController.class);
 
@@ -235,4 +240,13 @@ public class FileController {
     	int result = fileInfoService.deleteFile(tFileInfo);		
         return ApiResult.success(result);
     }
+
+    //@PostMapping("/getFileUrl")
+    @RequestMapping(value = "/getFileUrl", method = RequestMethod.POST)
+    public AjaxResult getFileUrl(@RequestBody JSONObject jsonObject){
+        String url = ossFileService.getFileUrl(jsonObject.getString("id"));
+        logger.error("查询到的url:"+url);
+        return AjaxResult.success("接口调用成功",url);
+    }
+
 }

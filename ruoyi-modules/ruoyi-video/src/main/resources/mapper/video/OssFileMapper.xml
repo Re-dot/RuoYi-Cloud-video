@@ -29,6 +29,12 @@
     </select>
 
 
+    <select id="getFileUrl" parameterType="java.lang.String" resultType="java.lang.String">
+        select url
+           from t_ossfile_info
+        where id = #{id}
+    </select>
+
 
 
     <insert id="insertSelective" parameterType="com.ruoyi.video.fastloader.web.model.OssFile">
@@ -134,5 +140,8 @@
         </set>
         where id = #{id,jdbcType=VARCHAR}
     </update>
+
+
+
 
 </mapper>

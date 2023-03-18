@@ -1,3 +1,4 @@
+/*
 package com.ruoyi.video.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
@@ -19,6 +20,7 @@ import com.ruoyi.common.core.utils.SpringUtils;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.log.annotation.Log;
 import com.ruoyi.common.redis.service.RedisService;
+import com.ruoyi.video.common.SysConfig;
 import com.ruoyi.video.config.VideoUtil;
 import com.ruoyi.video.config.getNacosValue;
 import com.ruoyi.video.mapper.TestMapper;
@@ -76,11 +78,16 @@ public class TestServicelmpl  {
     @Resource
     private VideoStringUtil videoStringUtil;
 
-    /**
+    @Resource
+    private SysConfig sysConfig;
+
+    */
+/**
      *
      *   seata报错数据回滚测试
      *
-     * **/
+     * **//*
+
     @GlobalTransactional(rollbackFor = Exception.class)
     public AjaxResult seataSave(JSONObject obj)
     {
@@ -165,9 +172,11 @@ public class TestServicelmpl  {
 
     }
 
-    /**
+    */
+/**
      * 获取Controller的方法名
-     */
+     *//*
+
 
     private String getLogMethod(ProceedingJoinPoint joinPoint) {
         Method[] methods = joinPoint.getSignature().getDeclaringType().getMethods();
@@ -182,12 +191,14 @@ public class TestServicelmpl  {
         return "该Controller的方法使用未使用注解@LogApi，请使用该注解说明方法作用";
     }
 
-    /**
+    */
+/**
      * 获取目标主机的ip
      *
      * @param request
      * @return
-     */
+     *//*
+
     private String getIp(HttpServletRequest request) {
         List<String> ipHeadList = Stream.of("X-Forwarded-For", "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "X-Real-IP").collect(Collectors.toList());
         for (String ipHead : ipHeadList) {
@@ -198,9 +209,11 @@ public class TestServicelmpl  {
         return "0:0:0:0:0:0:0:1".equals(request.getRemoteAddr()) ? "127.0.0.1" : request.getRemoteAddr();
     }
 
-    /**
+    */
+/**
      * 检查ip存在
-     */
+     *//*
+
     private boolean checkIP(String ip) {
         return !(null == ip || 0 == ip.length() || "unknown".equalsIgnoreCase(ip));
     }
@@ -272,6 +285,7 @@ public class TestServicelmpl  {
 
 
 
+*/
 /*
     public AjaxResult Test()
     {
@@ -279,19 +293,22 @@ public class TestServicelmpl  {
         List<SysUser> userlist = ossTestMapper.selectAll();
         List<SysUser> list = ossTestMapper.testselectAll();
         return AjaxResult.success("接口调用成功",list);
-    }*/
+    }*//*
 
-    /**
+
+    */
+/**
      *  小文件上传
      *
-     * */
+     * *//*
+
     public AjaxResult Save(MultipartFile file)  {
-        String bucketName = getNacosValue.getValue("bucketName-file");
+        String bucketName = sysConfig.getVal("bucketName-file");
         String fileName = file.getOriginalFilename();
-        String objectName = getNacosValue.getValue("objectName")+"/"+fileName;
-        String accesskey = getNacosValue.getValue("accesskey");
-        String secretkey = getNacosValue.getValue("secretkey");
-        String endpoint = getNacosValue.getValue("endpoint-guangzhou");
+        String objectName = sysConfig.getVal("objectName")+"/"+fileName;
+        String accesskey = sysConfig.getVal("accesskey");
+        String secretkey = sysConfig.getVal("secretkey");
+        String endpoint = sysConfig.getVal("endpoint-guangzhou");
         //String FilePath = "C:\\Users\\Retasu\\Desktop\\MG1WP{MGG9PNCS9XICR`W34.png";
         //File f = videoUtil.multipartFileToFile(file.getInputStream(),file);
         //objectName = f.getName();
@@ -329,10 +346,12 @@ public class TestServicelmpl  {
         }
     }
 
-    /**
+    */
+/**
      *  判断文件大小
      *  大于100M的变为分片上传
-     * **/
+     * **//*
+
     public void bigSave(MultipartFile multipartFile)
     {
         if(videoUtil.checkFileSize(multipartFile.getSize(),100,"M"))
@@ -344,23 +363,25 @@ public class TestServicelmpl  {
         }
     }
 
-    /**
+    */
+/**
      *   判断文件类型
      *   传到音频的包空间
-     * */
+     * *//*
+
     public HashMap<String,String> getOssConfig(MultipartFile multipartFile)
     {
         HashMap<String,String> map = new HashMap<>();
         String fileSuffix = multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf("."));
         if(StringUtils.equals(".mp3", fileSuffix) || StringUtils.equals(".mp4",fileSuffix))
         {
-            map.put("bucketName",getNacosValue.getValue("bucketName-video"));
-            map.put("endpoint",getNacosValue.getValue("endpoint-beijing"));
+            map.put("bucketName",sysConfig.getVal("bucketName-video"));
+            map.put("endpoint",sysConfig.getVal("endpoint-beijing"));
         }
         else
         {
-            map.put("bucketName",getNacosValue.getValue("bucketName-file"));
-            map.put("endpoint",getNacosValue.getValue("endpoint-guangzhou"));
+            map.put("bucketName",sysConfig.getVal("bucketName-file"));
+            map.put("endpoint",sysConfig.getVal("endpoint-guangzhou"));
         }
         return map;
     }
@@ -371,9 +392,9 @@ public class TestServicelmpl  {
         HashMap<String,String> map  = getOssConfig(multipartFile);
         String bucketName = map.get("bucketName");
         String fileName = multipartFile.getOriginalFilename();
-        String objectName = getNacosValue.getValue("objectName")+"/"+fileName;
-        String accesskey = getNacosValue.getValue("accesskey");
-        String secretkey = getNacosValue.getValue("secretkey");
+        String objectName = sysConfig.getVal("objectName")+"/"+fileName;
+        String accesskey = sysConfig.getVal("accesskey");
+        String secretkey = sysConfig.getVal("secretkey");
         String endpoint = map.get("endpoint");
         OSS ossClient = new OSSClientBuilder().build(endpoint, accesskey, secretkey);
         try {
@@ -496,3 +517,4 @@ public class TestServicelmpl  {
 
 
 }
+*/

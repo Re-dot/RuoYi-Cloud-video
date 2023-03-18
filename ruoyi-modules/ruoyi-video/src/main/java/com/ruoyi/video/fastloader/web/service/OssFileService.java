@@ -11,4 +11,6 @@ public interface OssFileService {
     void insertSelective(OssFile ossFile);
 
     void updateByPrimaryKeySelective(OssFile ossFile);
+
+    String getFileUrl(String id);
 }
