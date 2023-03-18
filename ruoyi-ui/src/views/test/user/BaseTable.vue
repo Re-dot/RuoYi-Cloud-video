@@ -49,6 +49,12 @@
                             class="red"
                             @click="handleDelete(scope.$index, scope.row)"
                         >删除</el-button>
+                        <el-button
+                            type="text"
+                            icon="el-icon-view"
+                            class="blue"
+                            @click="previewVideo(scope.$index, scope.row)"
+                            >预览</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -76,7 +82,7 @@
 </template>
 
 <script>
-import {selectFileList,deleteFile} from "@/api/uploadFile";
+import {selectFileList,deleteFile,getFileUrl} from "@/api/uploadFile";
 import Bus from '../common/bus';
 import UploadBigFile from './index';
 
@@ -105,10 +111,45 @@ export default {
         // 获取文件列表
         getData() {
             selectFileList(this.query).then(res => {
+                console.log("test")
                 this.tableData = res.data;
                 this.pageTotal = res.pageTotal || 50;
             });
         },
+        //预览
+        async  previewVideo(index, row)
+        {
+            
+
+            var json = {id:row.id};
+           
+            let result = await getFileUrl(row);
+            console.log("获取到的数据"+result.data); 
+            var url = result.data;
+             console.log("上传页面的参数为:"+url)
+        //     debugger;
+            this.$router.push({
+                 path:'/Test/video',
+             query:{             //路由传参时push和query搭配使用 ，作用时传递参数
+             id:url,
+             }
+         })          
+            
+        },
+
+        async getUrl(row){
+
+            var json = {id:row.id};
+            let  result ;
+            result = await getFileUrl(row);
+            console.log("获取到的数据"+result.data); 
+            var url = result.data
+           return url;
+
+
+          
+         // return result;
+       },
         // 触发搜索按钮
         handleSearch() {
             this.$set(this.query, 'pageIndex', 1);
@@ -179,7 +220,7 @@ export default {
     display: inline-block;
 }
 .table {
-    width: 100%;
+    width: 90%;
     font-size: 14px;
 }
 .red {
