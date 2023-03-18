@@ -29,17 +29,29 @@ public class SysConfig implements EnvironmentAware {
     public SysConfig() {
     }
 
-    public String getVal(String key) throws NacosException, IOException {
-        String serverAddr = "127.0.0.1:8848";
-        //Properties properties = new Properties();
-        properties.put("serverAddr", serverAddr);
-        ConfigService configService = NacosFactory.createConfigService(properties);
-       // if (this.properties.size() == 0) {
+    public String getVal(String key)  {
+        try
+        {
+            String serverAddr = "127.0.0.1:8848";
+            //Properties properties = new Properties();
+            properties.put("serverAddr", serverAddr);
+            ConfigService configService = NacosFactory.createConfigService(properties);
+            // if (this.properties.size() == 0) {
             String config = configService.getConfig("nacos-config.properties", "DEFAULT_GROUP", 5000);
             StringReader reader = new StringReader(config);
             this.properties.load(reader);
-       // }
+            // }
 
+
+        }catch (NacosException e)
+        {
+            e.printStackTrace();
+            log.error("nacos配置文件获取失败-NacosException:"+e.getMessage());
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+            log.error("nacos配置文件获取失败-IOException:"+e.getMessage());
+        }
         return this.properties.getProperty("props." + key);
     }
 
